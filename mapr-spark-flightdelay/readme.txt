@@ -27,8 +27,8 @@ Step 2: Copy the data file to the MapR sandbox or your MapR cluster
  
 Copy the data file from the project data folder to the sandbox using scp to this directory /user/mapr/data/uber.csv on the sandbox:
 
-For VMWare use:  $ scp  *.json  mapr@<ipaddress>:/home/mapr/. 
-For Virtualbox use:  $ scp -P 2222 data/*.csv  mapr@127.0.0.1:/mapr/demo.mapr.com/data/.
+For VMWare use:  $ scp  *.json  mapr@<ipaddress>:/mapr/demo.mapr.com/data/.
+For Virtualbox use:  $ scp -P 2222 data/*.json  mapr@127.0.0.1:/mapr/demo.mapr.com/data/.
 
 this will put the data file into the cluster directory: 
 /mapr/<cluster-name>/data/

@@ -60,6 +60,7 @@ object Flight {
     df1.show
     df1.createOrReplaceTempView("flights")
 
+    // here we are looking at departure delays of 40 minutes, you  can change this to the value you want to look at
     df1.select($"orig_dest", $"depdelay")
       .filter($"depdelay" > 40)
       .groupBy("orig_dest")
@@ -68,8 +69,9 @@ object Flight {
 
     df.describe("dist", "depdelay", "arrdelay", "crselapsedtime").show
 
+    // bucket by departure delay of 40 in order to count
     val delaybucketizer = new Bucketizer().setInputCol("depdelay")
-      .setOutputCol("delayed").setSplits(Array(0.0, 15.0, Double.PositiveInfinity))
+      .setOutputCol("delayed").setSplits(Array(0.0, 40.0, Double.PositiveInfinity))
 
     val df2 = delaybucketizer.transform(df1)
 
@@ -77,12 +79,13 @@ object Flight {
 
     df2.groupBy("delayed").count.show
 
-    val fractions = Map(0.0 -> .26, 1.0 -> 1.0)
-    val strain = df2.stat.sampleBy("delayed", fractions, 36L)
-    val Array(trainingData, testData) = strain
-      .randomSplit(Array(0.7, 0.3), 5043)
+    val Array(trainingData, testData) = df2.randomSplit(Array(0.7, 0.3), 5043)
 
+    // change this fraction to be proportional to the delays vs non delays that you are looking at
+    val fractions = Map(0.0 -> .125, 1.0 -> 1.0) // 26
+    val strain = trainingData.stat.sampleBy("delayed", fractions, 36L)
     strain.groupBy("delayed").count.show
+
 
     // column names for string types
     val categoricalColumns = Array("carrier", "origin", "dest", "dofW", "orig_dest")
@@ -96,10 +99,10 @@ object Flight {
         .fit(strain)
     }
 
-    // add a label column based on departure delay
-    val labeler = new Bucketizer().setInputCol("arrdelay")
+    // add a label column based on departure delay, here departure delay of 40
+    val labeler = new Bucketizer().setInputCol("depdelay")
       .setOutputCol("label")
-      .setSplits(Array(0.0, 20.0, Double.PositiveInfinity))
+      .setSplits(Array(0.0, 40.0, Double.PositiveInfinity))
 
     // list of feature columns
     val featureCols = Array("carrierIndexed", "destIndexed",
@@ -136,7 +139,7 @@ object Flight {
       .setEstimatorParamMaps(paramGrid).setNumFolds(3)
 
     // fit the training data set and return a model
-    val pipelineModel = crossvalidator.fit(trainingData)
+    val pipelineModel = crossvalidator.fit(strain)
 
     val featureImportances = pipelineModel
       .bestModel.asInstanceOf[PipelineModel]
@@ -198,7 +201,7 @@ object Flight {
     println("false positive", falsep)
 
     println("true negative", truen)
-    
+
     println("false negative", falsen)
 
     val precision = truep / (truep + falsep)

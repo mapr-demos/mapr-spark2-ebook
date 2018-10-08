@@ -45,7 +45,7 @@ df1.createOrReplaceTempView("flights")
 
 df1.select($"orig_dest", $"depdelay").filter($"depdelay" > 40).groupBy("orig_dest").count.orderBy(desc("count")).show(5)
 
-val delaybucketizer = new Bucketizer().setInputCol("depdelay").setOutputCol("delayed").setSplits(Array(0.0, 15.0, Double.PositiveInfinity))
+val delaybucketizer = new Bucketizer().setInputCol("depdelay").setOutputCol("delayed").setSplits(Array(0.0, 40.0, Double.PositiveInfinity))
     
 val df2 = delaybucketizer.transform(df1)
 
@@ -75,15 +75,14 @@ spark.sql("select crsdephour, count(depdelay) from flights where depdelay > 40 g
 println("Count of Departure Delays by origin")
 spark.sql("select origin, count(depdelay) from flights where depdelay > 40 group by origin ORDER BY count(depdelay) desc").show()
 
+val Array(trainingData, testData) = df2.randomSplit(Array(0.7, 0.3), 5043)
 
+val fractions = Map(0.0 -> .125, 1.0 -> 1.0)  // 26
+val strain = trainingData.stat.sampleBy("delayed", fractions, 36L)
 
-val fractions = Map(0.0 -> .26, 1.0 -> 1.0)  
-val strain = df2.stat.sampleBy("delayed", fractions, 36L)
-val Array(trainingData, testData) = strain.randomSplit(Array(0.7, 0.3), 5043)
 
 strain.groupBy("delayed").count.show
 
-trainingData.show
 
 // column names for string types
 val categoricalColumns = Array("carrier", "origin", "dest", "dofW", "orig_dest")
@@ -95,7 +94,7 @@ val stringIndexers = categoricalColumns.map { colName =>
         .fit(strain)
     }
 
-val labeler = new Bucketizer().setInputCol("arrdelay").setOutputCol("label").setSplits(Array(0.0, 20.0, Double.PositiveInfinity))
+val labeler = new Bucketizer().setInputCol("arrdelay").setOutputCol("label").setSplits(Array(0.0, 40.0, Double.PositiveInfinity))
 
 val featureCols = Array("carrierIndexed", "destIndexed",
       "originIndexed", "dofWIndexed", "orig_destIndexed",
@@ -116,7 +115,7 @@ val evaluator = new BinaryClassificationEvaluator()
 
 val crossvalidator = new CrossValidator().setEstimator(pipeline).setEvaluator(evaluator).setEstimatorParamMaps(paramGrid).setNumFolds(3)
 
-val pipelineModel = crossvalidator.fit(trainingData)
+val pipelineModel = crossvalidator.fit(strain)
 
 val featureImportances = pipelineModel.bestModel.asInstanceOf[PipelineModel].stages(stringIndexers.size + 2).asInstanceOf[RandomForestClassificationModel].featureImportances
 
