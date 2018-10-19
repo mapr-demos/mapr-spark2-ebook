@@ -114,3 +114,61 @@ From the Sandbox command line :
 This will read  from the file mfs:///mapr/demo.mapr.com/data/uber.csv  
 
 You can optionally pass the file as an input parameter   (take a look at the code to see what it does)
+
+_____________________________________________________________________
+
+Structured Streaming with MapR-ES and MapR-DB :
+
+use the mapr command line interface to create a stream, a topic, get info and create a table:
+
+maprcli stream create -path /apps/stream -produceperm p -consumeperm p -topicperm p
+maprcli stream topic create -path /apps/stream -topic flights  
+
+to get info on the ubers topic :
+maprcli stream topic info -path /apps/stream -topic flights
+
+Create the MapR-DB Table which will get written to
+
+maprcli table create -path /apps/flighttable -tabletype json -defaultreadperm p -defaultwriteperm p
+
+Run the Streaming code to publish events to the topic:
+
+java -cp ./mapr-spark-flightdelay-1.0.jar:`mapr classpath` streams.MsgProducer
+
+This client will read lines from the file in "/mapr/demo.mapr.com/data/uber.csv" and publish them to the topic /apps/uberstream:ubers. 
+You can optionally pass the file and topic as input parameters <file topic> 
+
+Optional: run the MapR Streams Java consumer to see what was published :
+
+java -cp mapr-spark-flightdelay-1.0.jar:`mapr classpath` streams.MsgConsumer 
+
+_____________________________________________________________________________
+
+Run the  the Spark Structured Streaming client to consume events enrich them and write them to MapR-DB
+(in separate consoles if you want to run at the same time)
+
+
+/opt/mapr/spark/spark-2.2.1/bin/spark-submit --class stream.StructuredStreamingConsumer --master local[2] \
+ mapr-spark-flightdelay-1.0.jar 
+
+This spark streaming client will consume from the topic /apps/uberstream:ubers, enrich from the saved model at
+/mapr/demo.mapr.com/data/ubermodel and write to the table /apps/ubertable.
+You can optionally pass the  input parameters <topic model table> 
+ 
+You can use ctl-c to stop
+
+
+In another window while the Streaming code is running, run the code to Query from MapR-DB 
+
+/opt/mapr/spark/spark-2.2.1/bin/spark-submit --class sparkmaprdb.QueryFlight --master local[2] \
+ mapr-spark-flightdelay-1.0.jar 
+
+ Use the Mapr-DB shell to query the data
+
+start the hbase shell and scan to see results: 
+
+$ /opt/mapr/bin/mapr dbshell
+
+maprdb mapr:> jsonoptions --pretty true --withtags false
+
+maprdb mapr:> find /apps/flighttable --limit 5

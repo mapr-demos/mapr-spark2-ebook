@@ -38,6 +38,7 @@ object Flight {
 
     var file: String = "/mapr/demo.mapr.com/data/flights20170102.json"
     // var file = "maprfs:///data/flights20170102.json"
+    var modeldirectory: String = "/mapr/demo.mapr.com/data/flightmodel"
 
     if (args.length == 1) {
       file = args(0)
@@ -192,7 +193,8 @@ object Flight {
       counttotal.toDouble
 
     val cor = truen + truep / falsep + falsen
-    //pipelineModel.write.overwrite().save(modeldir)
+    
+    pipelineModel.write.overwrite().save(modeldirectory)
 
     println("ratio correct", ratioCorrect)
 
