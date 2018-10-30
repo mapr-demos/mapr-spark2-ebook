@@ -7,7 +7,7 @@ import org.apache.spark.sql.types._
 import org.apache.spark.sql._
 
 import com.mapr.db._
-//import com.mapr.db.spark._
+import com.mapr.db.spark._
 import com.mapr.db.spark.impl._
 import com.mapr.db.spark.sql._
 import org.apache.log4j.{ Level, Logger }
