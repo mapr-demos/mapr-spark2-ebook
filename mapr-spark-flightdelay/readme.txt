@@ -85,7 +85,7 @@ From the Sandbox command line :
 
 /opt/mapr/spark/spark-2.2.1/bin/spark-submit --class dataset.Flight --master local[2]  mapr-spark-flightdelay-1.0.jar 
 
-This will read  from the file mfs:///mapr/demo.mapr.com/data/uber.csv  
+This will read  from the file "/mapr/demo.mapr.com/data/flights20170102.json" 
 
 You can optionally pass the file as an input parameter   (take a look at the code to see what it does)
 
@@ -116,6 +116,7 @@ This will read  from the file mfs:///mapr/demo.mapr.com/data/uber.csv
 You can optionally pass the file as an input parameter   (take a look at the code to see what it does)
 
 _____________________________________________________________________
+Additional code examples not in book:
 
 Structured Streaming with MapR-ES and MapR-DB :
 
@@ -172,3 +173,26 @@ $ /opt/mapr/bin/mapr dbshell
 maprdb mapr:> jsonoptions --pretty true --withtags false
 
 maprdb mapr:> find /apps/flighttable --limit 5
+
+
+____________________________________________________________________
+
+
+ To run the application code for the blog GraphFrames with MapR-DB 
+
+Create the MapR-DB Table which will get written to 
+(if you created it for the exercise above, delete it maprcli table delete -path /apps/flighttable)
+
+maprcli table create -path /apps/flighttable -tabletype json -defaultreadperm p -defaultwriteperm p
+
+/opt/mapr/spark/spark-2.3.1/bin/spark-shell --class graphmaprdb.WriteFlight --master local[2]  mapr-spark-flightdelay-1.0.jar 
+
+This will read  from the file "/mapr/demo.mapr.com/data/flightdata2018.json" 
+and write to /apps/flighttable  you can pass in the file and table name as arguments
+
+To read from MapR-DB into GraphFrames
+
+/opt/mapr/spark/spark-2.3.1/bin/spark-shell --class graphmaprdb.Flight --master local[2]  mapr-spark-flightdelay-1.0.jar 
+
+This will read  from the /apps/flighttable and the airports.json file  you can pass in the file and table name as arguments
+
