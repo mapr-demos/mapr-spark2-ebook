@@ -37,7 +37,7 @@ ____________________________________________________________________
 
 Step 3: To run the code in the Spark Shell:
  
-/opt/mapr/spark/spark-2.2.1/bin/spark-shell --master local[2]
+/opt/mapr/spark/spark-2.3.1/bin/spark-shell --master local[2]
  
  - For Yarn you should change --master parameter to yarn-client - "--master yarn-client"
 

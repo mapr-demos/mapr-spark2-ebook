@@ -1,0 +1,16 @@
+{
+    "id": "ATL_BOS_2018-01-01_DL_104",
+    "fldate": "2018-01-01",
+    "month": 1,
+    "dofW": 1,
+    "carrier": "DL",
+    "src": "ATL",
+    "dst": "BOS",
+    "crsdephour": 9,
+    "crsdeptime": 850,
+    "depdelay": 0.0,
+    "crsarrtime": 1116,
+    "arrdelay": 0.0,
+    "crselapsedtime": 146.0,
+    "dist": 946.0
+}

@@ -19,17 +19,16 @@
         <scala.version>2.11.5</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
 
-        <!-- version = <spark_version>-mapr-<mapr_eco_version> -->
+        <!-- version = <spark_version>-mapr-<mapr_eco_version> 2.3.1-mapr-1808-r2-->
        
         <drill.version>1.11.0-mapr</drill.version>
         <ojai.version>2.0-mapr-1710</ojai.version>
       
         <scala.binary.version>2.11</scala.binary.version>     
-        <hbasespark.version>1.1.8-mapr-1710-m7-6.0.0</hbasespark.version>
-        
+       
  
-        <mapr.version>6.0.1-mapr</mapr.version>
-        <spark.version>2.2.1-mapr-1803</spark.version>
+        <mapr.version>6.1-mapr</mapr.version>
+        <spark.version>2.3.1-mapr-1808-r2</spark.version>
         <scala.binary.version>2.11</scala.binary.version>  
         
     </properties>  
@@ -99,7 +98,7 @@
   
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql-kafka-0-10_2.11</artifactId>
+            <artifactId>spark-sql-kafka-0-10_${scala.binary.version}</artifactId>
             <version>${spark.version}</version>
                  
         </dependency>
